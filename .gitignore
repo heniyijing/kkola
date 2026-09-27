@@ -1,0 +1,27 @@
+# Gradle
+.gradle/
+build/
+*/build/
+gradle-app.setting
+local.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+captures/
+
+# Android
+*.apk
+*.ap_
+*.dex
+*.class
+output.json
+
+# Python static checker
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db

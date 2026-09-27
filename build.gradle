@@ -1,0 +1,12 @@
+// 米来红队靶场 —— Android 端
+//
+// 用途：在你自己授权、自己拥有的设备上，对你自己 allowlist 内的应用
+// 复现 Gen1–Gen5 的对手行为，用来量自己的检测系统。
+//
+// 注意：compileSdk 用 34，minSdk 26。Shizuku 依赖以本地 AAR 方式引入
+// （见 app/libs/），因为构建机可能没有外网（本机 hosts 屏蔽了 maven）。
+// 若你的机器能上外网，也可以改回 implementation 'dev.rikka.shizuku:api:13.1.5'。
+
+plugins {
+    id 'com.android.application' version '8.5.2' apply false
+}
