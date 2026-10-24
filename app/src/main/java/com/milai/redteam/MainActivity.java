@@ -88,9 +88,9 @@ public final class MainActivity extends Activity {
         root.addView(title);
 
         TextView sub = new TextView(this);
-        sub.setText("只对 SafetyGate 允许清单内的自有一方应用运行。"
-                + "Gen1 走 shell 注入；Gen2/Gen3 需 InputManager 注入；"
-                + "Gen4/Gen5 单机只能出计划与 trace。");
+        sub.setText("快捷场景：一键驱动淘宝双11活动页，去赚金币 / 去赚能量。"
+                + "通用流程：选目标 + 代数 + 轮数后开始。"
+                + "Gen1 走 shell 注入；Gen2/Gen3 需 InputManager 注入。");
         sub.setTextSize(12);
         sub.setPadding(0, pad / 2, 0, pad);
         root.addView(sub);
@@ -146,6 +146,22 @@ public final class MainActivity extends Activity {
         });
         buttons.addView(stopBtn);
         root.addView(buttons);
+
+        // 快捷场景：淘宝双11活动页
+        LinearLayout quickButtons = new LinearLayout(this);
+        quickButtons.setOrientation(LinearLayout.HORIZONTAL);
+        quickButtons.setPadding(0, pad / 2, 0, pad / 2);
+
+        Button coinBtn = new Button(this);
+        coinBtn.setText("去赚金币");
+        coinBtn.setOnClickListener(v -> startTaobaoScene(ScenePlanner.SCENE_COIN));
+        quickButtons.addView(coinBtn);
+
+        Button energyBtn = new Button(this);
+        energyBtn.setText("去赚能量");
+        energyBtn.setOnClickListener(v -> startTaobaoScene(ScenePlanner.SCENE_ENERGY));
+        quickButtons.addView(energyBtn);
+        root.addView(quickButtons);
 
         statusView = new TextView(this);
         statusView.setTextSize(14);
@@ -246,6 +262,51 @@ public final class MainActivity extends Activity {
             startService(i);
         }
         AppState.log("已下发任务: " + pkg + " / " + gen + " / " + sessions + " 轮"
+                + (dry ? " / dry-run" : ""));
+    }
+
+    /** 快捷场景：固定驱动淘宝双11活动页的去赚金币 / 去赚能量按钮。 */
+    private void startTaobaoScene(String scene) {
+        String pkg = "com.taobao.taobao";
+        String gen = (String) genSpinner.getSelectedItem();
+        String account = accountInput.getText().toString().trim();
+        boolean dry = dryRunCheck.isChecked();
+
+        try {
+            SafetyGate.requireAllowed(pkg);
+        } catch (SafetyGate.Refused e) {
+            AppState.log("拒绝: " + e.getMessage());
+            AppState.status = "已拒绝";
+            return;
+        }
+
+        int sessions;
+        try {
+            sessions = Math.max(1, Integer.parseInt(sessionsInput.getText().toString().trim()));
+        } catch (Throwable e) {
+            sessions = 1;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 0x52);
+        }
+
+        Intent i = new Intent(this, ScenarioService.class)
+                .setAction(ScenarioService.ACTION_START)
+                .putExtra(ScenarioService.EXTRA_PACKAGE, pkg)
+                .putExtra(ScenarioService.EXTRA_GEN, gen)
+                .putExtra(ScenarioService.EXTRA_SESSIONS, sessions)
+                .putExtra(ScenarioService.EXTRA_ACCOUNT, account)
+                .putExtra(ScenarioService.EXTRA_DRY_RUN, dry)
+                .putExtra(ScenarioService.EXTRA_SCENE, scene);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(i);
+        } else {
+            startService(i);
+        }
+        AppState.log("已下发快捷场景: " + ("coin".equals(scene) ? "去赚金币" : "去赚能量")
+                + " / " + pkg + " / " + gen + " / " + sessions + " 轮"
                 + (dry ? " / dry-run" : ""));
     }
 

@@ -23,21 +23,19 @@ public final class SafetyGate {
     /**
      * Packages this build may drive.
      *
-     * TODO(改成米来): 把这里换成你自己的包名，然后重新构建。
-     * 例如  "com.milai.app" / "com.milai.lab"。
+     * com.taobao.taobao 是「去赚金币 / 去赚能量」快捷按钮的目标——
+     * 仅在你自己的账号上跑，见 MainActivity 的快捷场景。
      * 不在这里的包一律拒绝执行——这是刻意的摩擦，避免顺手把工具指到别处。
      */
     private static final Set<String> ALLOWED = new LinkedHashSet<>(Arrays.asList(
-            "com.example.yourapp",
-            "com.example.yourlab"
+            "com.taobao.taobao"
     ));
 
     /**
      * Refused outright. No override exists, by design.
-     * 第三方平台一律不在本工具的作业范围内。
+     * 其余第三方平台一律不在本工具的作业范围内。
      */
     private static final Set<String> FORBIDDEN = new LinkedHashSet<>(Arrays.asList(
-            "com.taobao.taobao",
             "com.taobao.idlefish",
             "com.eg.android.AlipayGphone",
             "com.tencent.mm"

@@ -25,6 +25,12 @@ public final class LabConfig {
     public final int screenH;
 
     // --- anchors, in BASELINE coordinates. Replace with 米来 real values. ---
+    /** 淘宝首页功能宫格 -> 领淘金币 入口（截图 1） */
+    private final float[] aGoldEntry = {617, 516};
+    /** 双11活动页 -> 去赚金币 按钮（截图 2） */
+    private final float[] aCoinButton = {82, 1012};
+    /** 双11活动页 -> 去赚能量 按钮（截图 2） */
+    private final float[] aEnergyButton = {923, 1012};
     /** 首页 -> 任务列表 的入口 */
     private final float[] aHome = {540, 2200};
     /** 任务列表第一行的可点区域 */
@@ -71,6 +77,21 @@ public final class LabConfig {
         return scaled(aHome);
     }
 
+    /** 淘宝首页「领淘金币」入口 */
+    public float[] goldEntry() {
+        return scaled(aGoldEntry);
+    }
+
+    /** 双11活动页「去赚金币」按钮 */
+    public float[] coinButton() {
+        return scaled(aCoinButton);
+    }
+
+    /** 双11活动页「去赚能量」按钮 */
+    public float[] energyButton() {
+        return scaled(aEnergyButton);
+    }
+
     public float[] taskRow(int index) {
         return scaled(new float[]{aTaskRow0[0], aTaskRow0[1] + index * aTaskRowStep});
     }
@@ -99,5 +120,10 @@ public final class LabConfig {
 
     public String describe() {
         return packageName + " @ " + screenW + "x" + screenH;
+    }
+
+    /** 可选代数（与 Generation.of 支持的名称一致）。 */
+    public static String[] generations() {
+        return new String[]{"gen1", "gen2", "gen3", "gen4", "gen5"};
     }
 }

@@ -29,6 +29,8 @@ public final class ScenarioService extends Service {
     public static final String EXTRA_SESSIONS = "sessions";
     public static final String EXTRA_ACCOUNT = "account";
     public static final String EXTRA_DRY_RUN = "dry_run";
+    /** 快捷场景：coin=去赚金币 / energy=去赚能量（见 ScenePlanner.SCENE_*） */
+    public static final String EXTRA_SCENE = "scene";
 
     private static final String CHANNEL_ID = "redteam";
     private static final int NOTIFICATION_ID = 4711;
@@ -64,6 +66,7 @@ public final class ScenarioService extends Service {
         int sessions = intent.getIntExtra(EXTRA_SESSIONS, 1);
         String account = intent.getStringExtra(EXTRA_ACCOUNT);
         boolean dryRun = intent.getBooleanExtra(EXTRA_DRY_RUN, false);
+        String scene = intent.getStringExtra(EXTRA_SCENE);
 
         startForeground(NOTIFICATION_ID, buildNotification("准备中…"));
 
@@ -91,12 +94,14 @@ public final class ScenarioService extends Service {
             return START_NOT_STICKY;
         }
 
-        worker = new Thread(() -> runSuite(pkg, gen, sessions, account, dryRun), "redteam-runner");
+        worker = new Thread(() -> runSuite(pkg, gen, sessions, account, dryRun, scene),
+                "redteam-runner");
         worker.start();
         return START_NOT_STICKY;
     }
 
-    private void runSuite(String pkg, Generation gen, int sessions, String account, boolean dryRun) {
+    private void runSuite(String pkg, Generation gen, int sessions, String account,
+                          boolean dryRun, String scene) {
         AppState.running = true;
         AppState.log("目标 " + pkg + "，代数 " + gen.name
                 + "，注入类别 " + gen.injectionClass
@@ -145,7 +150,13 @@ public final class ScenarioService extends Service {
             for (int i = 0; i < sessions; i++) {
                 if (Thread.currentThread().isInterrupted()) break;
 
-                List<SceneStep> steps = ScenePlanner.build(gen, cfg, 20260227 + i * 7919);
+                List<SceneStep> steps;
+                if (ScenePlanner.SCENE_COIN.equals(scene)
+                        || ScenePlanner.SCENE_ENERGY.equals(scene)) {
+                    steps = ScenePlanner.buildTaobaoScene(gen, cfg, 20260227 + i * 7919, scene);
+                } else {
+                    steps = ScenePlanner.build(gen, cfg, 20260227 + i * 7919);
+                }
                 SceneRunner r = new SceneRunner(this, cfg, gen, injector, steps,
                         account == null || account.isEmpty() ? "lab-account" : account,
                         true);

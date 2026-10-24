@@ -24,7 +24,46 @@ public final class ScenePlanner {
 
     public static final int ROWS = 4;
 
+    /** 快捷场景：去赚金币 */
+    public static final String SCENE_COIN = "coin";
+    /** 快捷场景：去赚能量 */
+    public static final String SCENE_ENERGY = "energy";
+
     private ScenePlanner() {}
+
+    /**
+     * 淘宝双11活动页快捷场景：首页 -> 领淘金币入口 -> 活动页 -> 去赚金币/去赚能量。
+     *
+     * @param scene 取 {@link #SCENE_COIN} 或 {@link #SCENE_ENERGY}
+     */
+    public static List<SceneStep> buildTaobaoScene(Generation gen, LabConfig cfg, int seed,
+                                                   String scene) {
+        Random rng = new Random(seed);
+        List<SceneStep> steps = new ArrayList<>();
+
+        steps.add(SceneStep.screen("launch", false).withInstance(0));
+        steps.add(SceneStep.wait(1500, "launch_settle").withInstance(0));
+        steps.add(SceneStep.screen("home", false).withInstance(0));
+
+        // 首页功能宫格 -> 领淘金币 入口
+        float[] entry = cfg.goldEntry();
+        steps.add(SceneStep.tap(jit(gen, rng, entry[0]), jit(gen, rng, entry[1])).withInstance(0));
+        steps.add(SceneStep.wait(gen.settleMs(rng), "home_to_activity").withInstance(0));
+        steps.add(SceneStep.screen("activity_page", true).withInstance(0));
+
+        // 活动页 -> 去赚金币 / 去赚能量
+        float[] btn = SCENE_ENERGY.equals(scene) ? cfg.energyButton() : cfg.coinButton();
+        steps.add(SceneStep.tap(jit(gen, rng, btn[0]), jit(gen, rng, btn[1])).withInstance(0));
+        steps.add(SceneStep.wait(gen.settleMs(rng), "enter_task").withInstance(0));
+        steps.add(SceneStep.screen(scene + "_task", true).withInstance(0));
+
+        // 进入任务页后先停留浏览一段时间（后续可按目标页继续补锚点）
+        steps.add(SceneStep.browse(gen.browseWait(rng), scene + "_browse").withInstance(0));
+
+        steps.add(SceneStep.screen("home", false).withInstance(0));
+        steps.add(SceneStep.wait(gen.settleMs(rng), "session_end").withInstance(0));
+        return Collections.unmodifiableList(steps);
+    }
 
     public static List<SceneStep> build(Generation gen, LabConfig cfg, int seed) {
         Random rng = new Random(seed);
