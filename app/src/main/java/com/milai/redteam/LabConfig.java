@@ -1,8 +1,8 @@
 package com.milai.redteam;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Point;
+import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
 /**
@@ -56,10 +56,10 @@ public final class LabConfig {
         } catch (Throwable ignored) {
         }
         if (size.x <= 0 || size.y <= 0) {
-            // fall back to the configuration, still better than a hard-coded guess
-            Configuration c = ctx.getResources().getConfiguration();
-            size.x = (int) (c.screenWidthDp * c.density);
-            size.y = (int) (c.screenHeightDp * c.density);
+            // fall back to the display metrics, still better than a hard-coded guess
+            DisplayMetrics dm = ctx.getResources().getDisplayMetrics();
+            size.x = dm.widthPixels;
+            size.y = dm.heightPixels;
         }
         this.screenW = size.x;
         this.screenH = size.y;
